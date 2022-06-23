@@ -1,89 +1,86 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:instagram_story_case_1/cubit/story_bucket_cubit_cubit.dart';
 import 'package:instagram_story_case_1/cubit/story_cubit.dart';
 import 'package:instagram_story_case_1/views/story_view.dart';
 
 class StoryWidget extends StatelessWidget {
-  StoryWidget({Key? key, required this.storyDict})
+  const StoryWidget({Key? key, required this.storyDict})
       : storiesLength = storyDict.length,
         super(key: key);
   final Map<String, Map<String, Object>> storyDict;
   final int storiesLength;
-  late final List<StoryBucket> bucketList;
+
+  //List<StoryBucket> get  bucketList => [];
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(10),
       height: 140,
-      child: FutureBuilder<List<StoryBucket>>(
-          future: storyInit(storyDict),
-          builder: (context, _snapshot) {
-            if (_snapshot.hasData) {
-              bucketList = _snapshot.data!;
-              bucketList.sort();
-              return BlocProvider<StoryCubit>(
-                create: (_) => StoryCubit()..assignBucket(bucketList),
-                child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: storiesLength,
-                    itemBuilder: (_context, i) {
-                      return Row(
-                        children: [
-                          StoryListItem(sbl: bucketList, i: i),
-                          SizedBox(
-                            width: (i != storiesLength - 1) ? 23 : 0,
-                          )
-                        ],
-                      );
-                    }),
-              );
-            } else
-              return SizedBox();
-          }),
+      child: BlocProvider<StoryBucketCubit>(
+        create: (context) => StoryBucketCubit()..assignDict(storyDict),
+        child: BlocBuilder<StoryBucketCubit, StoryBucketState>(
+          buildWhen: (previous, current) {
+            if (current is SbViewState) {
+              return false;
+            } else {
+              return true;
+            }
+          },
+          builder: (context, state) {
+            print(state);
+            if (state is SbHomeState) {
+              return ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: storiesLength,
+                  itemBuilder: (_context, i) {
+                    return Row(
+                      children: [
+                        StoryListItem(sb: state.sbl[i], i: i),
+                        SizedBox(
+                          width: (i != storiesLength - 1) ? 23 : 0,
+                        )
+                      ],
+                    );
+                  });
+            } else if (state is SbLoadingState || state is StoryBucketInitial) {
+              return const Center(child: Text("Loading..."));
+            } else {
+              return const Center(child: Text("That shouldn't be seen"));
+            }
+          },
+        ),
+      ),
       color: Colors.transparent,
     );
-  }
-
-  Future<List<StoryBucket>> storyInit(
-      Map<String, Map<String, Object>> storyDict) async {
-    return Future.wait<StoryBucket>(storyDict.entries.map((e) async {
-      List<String> storyPaths = e.value["stories"] as List<String>;
-      List<StoryItem> _stories = storyPaths.map((p) {
-        if (p.endsWith("mp4")) {
-          return VideoStoryItem(p, duration: Duration(seconds: 2));
-        } else {
-          return ImageStoryItem(p);
-        }
-      }).toList();
-      String _ppPath = e.value["pp"] as String;
-      return StoryBucket(_stories, _ppPath, e.key);
-    }));
   }
 }
 
 class StoryListItem extends StatelessWidget {
   const StoryListItem({
     Key? key,
-    required this.sbl,
+    required this.sb,
     required this.i,
   }) : super(key: key);
 
-  final List<StoryBucket> sbl;
+  final StoryBucket sb;
   final int i;
 
   @override
   Widget build(BuildContext context) {
-    var sb = sbl[i];
     return InkWell(
       onTap: () {
-        context.read<StoryCubit>().storyTap(i);
+        context.read<StoryBucketCubit>().storyTap(i);
         Navigator.of(context).push(
           MaterialPageRoute(builder: (_) {
+            return BlocProvider<StoryBucketCubit>.value(
+              value: BlocProvider.of<StoryBucketCubit>(context),
+              child: StoryView(),
+            );
             // set block's bucket and page id +++++++*++*+*+*+*+*+**+*+*++*+*+*++**++*+*+*+*+*+++*+*+*++**++*++*+*
-            return StoryView(blocContext: context);
           }),
-        );
+        ).then((_) => context.read<StoryBucketCubit>().goHome());
       },
       child: Column(
         children: [
@@ -123,6 +120,13 @@ class StoryBucket implements Comparable<StoryBucket> {
   bool allSeen = false;
 
   StoryBucket(this.stories, this.ppPath, this.owner) : length = stories.length;
+
+  markAsSeen(int index) {
+    stories[index].seen = true;
+    if (index == length - 1) {
+      allSeen = true;
+    }
+  }
 
   @override
   int compareTo(other) {

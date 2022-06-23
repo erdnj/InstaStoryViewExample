@@ -4,78 +4,63 @@ import 'package:meta/meta.dart';
 part 'story_state.dart';
 
 class StoryCubit extends Cubit<StoryState> {
-  int current_i = 0;
-  int current_b = 0;
-  late final List<StoryBucket> sbl;
-  late final int bucketLenIndexed;
-  StoryCubit() : super(StoryInitial()) {
-    print("cubit_created");
-  }
-
-  assignBucket(_sbl) {
-    sbl = _sbl;
-    bucketLenIndexed = sbl.length - 1;
+  int current_i;
+  final int bucketID;
+  final StoryBucket sb;
+  final int bucketLenIndexed;
+  final bool isLastSB;
+  StoryCubit({required this.bucketID, required this.sb, required this.isLastSB})
+      : bucketLenIndexed = sb.length - 1,
+        current_i = sb.last,
+        super(StoryInitial()) {
+    print("story_cubit_created");
   }
 
   leftTap() {
-    if (current_i == 0 && current_b == 0) {
-      
+    if (current_i == 0 && bucketID == 0) {
     } else if (current_i == 0) {
       ///// go to before bucket
-      current_b -= 1;
-      current_i = sbl[current_b].last;
-      markAsSeen();
+      current_i = sb.last;
+      sb.markAsSeen(current_i);
       emit(StoryLeftState(StorySwapMod.bucket));
     } else {
       current_i -= 1;
-      sbl[current_b].last = current_i;
-      markAsSeen();
+      sb.last = current_i;
       emit(StoryLeftState(StorySwapMod.item));
+      sb.markAsSeen(current_i);
     }
   }
 
   rightTap() {
-    if (current_i == sbl[current_b].length - 1 &&
-        current_b == bucketLenIndexed) {
+    if (current_i == sb.length - 1 && isLastSB) {
       emit(CloseState());
-    } else if (current_i == sbl[current_b].length - 1) {
+    } else if (current_i == sb.length - 1) {
       ///// go to forward bucket
-      current_b += 1;
-      current_i = sbl[current_b].last;
-      markAsSeen();
-      sbl[current_b].allSeen = true;
+      current_i = sb.last;
+      sb.markAsSeen(current_i);
       emit(StoryRightState(StorySwapMod.bucket));
     } else {
       current_i += 1;
-      sbl[current_b].last = current_i;
-      markAsSeen();
+      sb.last = current_i;
       emit(StoryRightState(StorySwapMod.item));
+      sb.markAsSeen(current_i);
     }
-  }
-
-  storyTap(int bucketIndex) {
-    current_b = bucketIndex;
-    current_i = sbl[current_b].last;
-    emit(StoryTappedState(current_b, current_i));
   }
 
   playStory() {
     emit(StoryPlayingState());
+    sb.markAsSeen(current_i);
+  }
+
+  continueStory(){
+    emit(StoryContinueState());
   }
 
   pauseStory() {
-    emit(StoryHoldedState());
+    emit(StoryPausedState());
   }
 
-  closeStory() {
+  closeStoryBucket() {
     emit(CloseState());
-  }
-
-  goHome() {
-    emit(StoryHomeState());
-  }
-
-  void markAsSeen() {
-    sbl[current_b].stories[current_i].seen = true;
   }
 }

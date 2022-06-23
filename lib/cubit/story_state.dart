@@ -5,15 +5,6 @@ abstract class StoryState {}
 
 class StoryInitial extends StoryState {}
 
-class StoryHomeState extends StoryState {}
-
-class StoryTappedState extends StoryState {
-  final int bucketID;
-  final int itemID;
-
-  StoryTappedState(this.bucketID, this.itemID);
-}
-
 enum StorySwapMod { bucket, item }
 
 class StoryRightState extends StoryState {
@@ -26,7 +17,13 @@ class StoryLeftState extends StoryState {
   StoryLeftState(this.mod);
 }
 
-class StoryHoldedState extends StoryState {}
+
+
+class StoryPausedState extends StoryState {}
+
+
+class StoryContinueState extends StoryState {}
+
 
 class StoryPlayingState extends StoryState {}
 

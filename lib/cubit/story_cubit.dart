@@ -3,6 +3,9 @@ import 'package:instagram_story_case_1/models/story_models.dart';
 import 'package:meta/meta.dart';
 part 'story_state.dart';
 
+
+
+//each story group have own a StoryCubit when they on page view
 class StoryCubit extends Cubit<StoryState> {
   int current_i;
   final int bucketID;
@@ -13,7 +16,6 @@ class StoryCubit extends Cubit<StoryState> {
       : bucketLenIndexed = sb.length - 1,
         current_i = sb.last,
         super(StoryInitial()) {
-    print("story_cubit_created");
   }
 
   leftTap() {
@@ -48,7 +50,6 @@ class StoryCubit extends Cubit<StoryState> {
   }
 
   playStory() {
-    print("playStory called");
     sb.markAsSeen(current_i);
     emit(StoryPlayingState());
   }

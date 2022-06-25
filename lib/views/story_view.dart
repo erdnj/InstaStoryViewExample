@@ -1,6 +1,5 @@
 import 'dart:math';
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:instagram_story_case_1/cubit/story_cubit.dart';
@@ -11,6 +10,8 @@ import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 import '../cubit/story_bucket_cubit_cubit.dart';
 
+
+//The widget when user tap the story circle open
 class StoryView extends StatefulWidget {
   const StoryView(this.current_b, {Key? key}) : super(key: key);
   final int current_b;
@@ -65,7 +66,7 @@ class _StoryViewState extends State<StoryView> {
 }
 
 double degToRad(num deg) => deg * (pi / 180.0);
-
+//Cubic transition widget, transform its child while pageview is scrooling the pages
 class CubicTransformWidget extends StatelessWidget {
   final int index;
   final double pageNotifierValue;
@@ -95,7 +96,7 @@ class CubicTransformWidget extends StatelessWidget {
           Positioned.fill(
             child: Opacity(
               opacity: opacity,
-              child: SizedBox.shrink(),
+              child: const SizedBox.shrink(),
             ),
           ),
         ],
@@ -104,6 +105,9 @@ class CubicTransformWidget extends StatelessWidget {
   }
 }
 
+
+//The big wiget, it could be smaller with some optimizations
+//Each page of page view is that widget
 class StoryViewItem extends StatefulWidget {
   const StoryViewItem(
       {Key? key,
@@ -267,57 +271,92 @@ class _StoryViewItemState extends State<StoryViewItem>
                 StoryItem current_story = widget.sb.stories[current_i];
                 bool isImage = current_story is ImageStoryItem;
 
-                
                 //This widget will rebuild to cubic transform at there <3
-                final PageChangeNotifier cubicAnim = Provider.of<PageChangeNotifier>(context);
+                final PageChangeNotifier cubicAnim =
+                    Provider.of<PageChangeNotifier>(context);
                 return AnimatedBuilder(
-                  animation: cubicAnim,
-                  builder: (context,x) {
-                    return CubicTransformWidget(
-                      pageNotifierValue:cubicAnim.value ,
-                      index: widget.bucketID,
-                      child: Stack(
-                        children: [
-                          Align(
-                            alignment: Alignment.center,
-                            child: isImage
-                                ? Image(
-                                    image: AssetImage(current_story.path),
-                                    fit: BoxFit.fitWidth,
-                                  )
-                                : (state is StoryReadyState)
-                                    ? SizedBox(
-                                        width: widthSize,
-                                        height: heightSize,
-                                        child: FittedBox(
-                                          clipBehavior: Clip.hardEdge,
-                                          fit: BoxFit.cover,
-                                          child: SizedBox(
-                                            width: videoController!.value.size.width,
-                                            height:
-                                                videoController!.value.size.height,
-                                            child: VideoPlayer(videoController!),
+                    animation: cubicAnim,
+                    builder: (context, x) {
+                      return CubicTransformWidget(
+                        pageNotifierValue: cubicAnim.value,
+                        index: widget.bucketID,
+                        child: Stack(
+                          children: [
+                            Align(
+                              alignment: Alignment.center,
+                              child: isImage
+                                  ? Image(
+                                      image: AssetImage(current_story.path),
+                                      fit: BoxFit.fitWidth,
+                                    )
+                                  : (state is StoryReadyState)
+                                      ? SizedBox(
+                                          width: widthSize,
+                                          height: heightSize,
+                                          child: FittedBox(
+                                            clipBehavior: Clip.hardEdge,
+                                            fit: BoxFit.cover,
+                                            child: SizedBox(
+                                              width: videoController!
+                                                  .value.size.width,
+                                              height: videoController!
+                                                  .value.size.height,
+                                              child:
+                                                  VideoPlayer(videoController!),
+                                            ),
                                           ),
-                                        ),
-                                      )
-                                    : const SizedBox(),
-                          ),
-                          Align(
-                            alignment: Alignment.topCenter,
-                            child: Padding(
-                              padding: EdgeInsets.only(top: topPaddingSize),
-                              child: StoryProgressBar(
-                                currentStory: current_i,
-                                storyLength: widget.sb.length,
-                                animController: animController,
+                                        )
+                                      : const SizedBox(),
+                            ),
+                            Align(
+                              alignment: Alignment.topCenter,
+                              child: SizedBox(
+                                width: widthSize,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                          top: topPaddingSize,
+                                          bottom: widthSize * 0.03),
+                                      child: StoryProgressBar(
+                                        currentStory: current_i,
+                                        storyLength: widget.sb.length,
+                                        animController: animController,
+                                      ),
+                                    ),
+                                    Row(
+                                      children: [
+                                        Container(
+                                          margin: EdgeInsets.only(
+                                              left: widthSize * 0.05,
+                                              right: widthSize * 0.02),
+                                          height: widthSize / 9,
+                                          width: widthSize / 9,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            image: DecorationImage(
+                                                image: AssetImage(
+                                                    widget.sb.ppPath),
+                                                fit: BoxFit.cover),
+                                          ),
+                                        ),Text(widget.sb.owner,
+                                            style: TextStyle(
+                                              decoration: TextDecoration.none,
+                                                color: const Color.fromRGBO(255, 255, 255, 1),
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: widthSize / 25))
+                                        
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-                );
+                          ],
+                        ),
+                      );
+                    });
               },
             ),
             SizedBox(

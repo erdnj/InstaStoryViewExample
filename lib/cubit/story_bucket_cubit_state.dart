@@ -1,5 +1,7 @@
 part of 'story_bucket_cubit_cubit.dart';
 
+
+
 @immutable
 abstract class StoryBucketState {}
 

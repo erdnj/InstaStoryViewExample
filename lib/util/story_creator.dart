@@ -1,3 +1,7 @@
+//This is the example data from assets
+//StoryWidget take its data like that
+
+
 Map<String, Map<String, Object>> getStories() {
   return {
     "Astro": {

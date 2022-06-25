@@ -7,8 +7,8 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Codeway',
+    return const MaterialApp(
+      title: 'Insta',
       home: MyHomePage(),
     );
   }
@@ -32,13 +32,20 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   }
 
   @override
+  void dispose() {
+    // TODO: implement dispose
+    tabController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     getStories();
     return Scaffold(
       appBar: AppBar(
-        centerTitle: false,
+        centerTitle: true,
         title: const Text(
-          'Codeway Case 1',
+          'Instagram Story Example',
           style: TextStyle(color: Colors.black),
         ),
         backgroundColor: Colors.transparent,
@@ -86,5 +93,3 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     );
   }
 }
-
-

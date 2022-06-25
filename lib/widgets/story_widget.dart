@@ -11,13 +11,15 @@ class StoryWidget extends StatelessWidget {
   final Map<String, Map<String, Object>> storyDict;
   final int storiesLength;
 
-  //List<StoryBucket> get  bucketList => [];
-
   @override
   Widget build(BuildContext context) {
+    final widthSize = MediaQuery.of(context).size.width;
+    final heightSize = MediaQuery.of(context).size.height;
+
     return Container(
-      padding: const EdgeInsets.all(10),
-      height: 140,
+      padding: EdgeInsets.only(top: widthSize * 0.03),
+      height: widthSize * 0.40,
+      width: widthSize,
       child: BlocProvider<StoryBucketCubit>(
         create: (context) => StoryBucketCubit()..assignDict(storyDict),
         child: BlocBuilder<StoryBucketCubit, StoryBucketState>(
@@ -31,14 +33,18 @@ class StoryWidget extends StatelessWidget {
           builder: (context, state) {
             if (state is SbHomeState) {
               return ListView.builder(
+                  padding: EdgeInsets.only(
+                      left: widthSize * 0.025, right: widthSize * 0.025),
                   scrollDirection: Axis.horizontal,
                   itemCount: storiesLength,
                   itemBuilder: (_context, i) {
                     return Row(
                       children: [
-                        StoryListItem(sb: state.sbl[i], i: i),
+                        StoryListItem(
+                            sb: state.sbl[i], i: i, size: widthSize * 0.2),
                         SizedBox(
-                          width: (i != storiesLength - 1) ? 23 : 0,
+                          width:
+                              (i != storiesLength - 1) ? widthSize * 0.05 : 0,
                         )
                       ],
                     );
@@ -46,12 +52,11 @@ class StoryWidget extends StatelessWidget {
             } else if (state is SbLoadingState || state is StoryBucketInitial) {
               return const Center(child: Text("Loading..."));
             } else {
-              return const Center(child: Text("That shouldn't be seen"));
+              return const Center(child: Text("That shouldn't be seen :)"));
             }
           },
         ),
       ),
-      color: Colors.transparent,
     );
   }
 }
@@ -61,10 +66,12 @@ class StoryListItem extends StatelessWidget {
     Key? key,
     required this.sb,
     required this.i,
+    required this.size,
   }) : super(key: key);
 
   final StoryBucket sb;
   final int i;
+  final double size;
 
   @override
   Widget build(BuildContext context) {
@@ -84,23 +91,27 @@ class StoryListItem extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            height: 75,
-            width: 75,
+            height: size,
+            width: size,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                  color: sb.allSeen ? Colors.grey : Colors.green, width: 3),
+                  color: sb.allSeen ? Colors.grey : Colors.green,
+                  width: size * 0.04),
               image: DecorationImage(
                   image: AssetImage(sb.ppPath), fit: BoxFit.cover),
             ),
           ),
           SizedBox(
-            height: 30,
-            width: 75,
+            height: size * 0.4,
+            width: size,
             child: Center(
               child: Text(
                 sb.owner,
-                style: TextStyle(color: Colors.black54, fontSize: 14),
+                style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: size * 0.18,
+                    fontWeight: FontWeight.w500),
               ),
             ),
           )
@@ -109,5 +120,3 @@ class StoryListItem extends StatelessWidget {
     );
   }
 }
-
-

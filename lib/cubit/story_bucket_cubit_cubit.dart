@@ -4,6 +4,8 @@ import 'package:instagram_story_case_1/models/story_models.dart';
 import 'package:meta/meta.dart';
 part 'story_bucket_cubit_state.dart';
 
+
+//This is the StoryWidget's widget actually, there is only one and it help Storycubit 
 class StoryBucketCubit extends Cubit<StoryBucketState> {
   StoryBucketCubit() : super(StoryBucketInitial());
   late final List<StoryBucket> sbl;

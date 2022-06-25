@@ -30,6 +30,7 @@ class StoryContinueState extends StoryState {}
 class StoryPlayingState extends StoryState {}
 
 class CloseState extends StoryState {}
+
 class StoryReadyState extends StoryState {}
 
 

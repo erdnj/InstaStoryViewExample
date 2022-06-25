@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:instagram_story_case_1/widgets/story_widget.dart';
+import 'package:instagram_story_case_1/models/story_models.dart';
 import 'package:meta/meta.dart';
 part 'story_bucket_cubit_state.dart';
 

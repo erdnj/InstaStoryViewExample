@@ -1,10 +1,12 @@
-import 'package:flutter/gestures.dart';
+import 'dart:math';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:instagram_story_case_1/cubit/story_cubit.dart';
-import 'package:instagram_story_case_1/widgets/story_widget.dart';
+import 'package:instagram_story_case_1/models/story_models.dart';
+import 'package:instagram_story_case_1/widgets/story_progress_bar.dart';
 import 'package:video_player/video_player.dart';
-
 import '../cubit/story_bucket_cubit_cubit.dart';
 
 class StoryView extends StatefulWidget {
@@ -27,6 +29,9 @@ class _StoryViewState extends State<StoryView> {
   void initState() {
     super.initState();
     pageController = PageController(initialPage: widget.current_b);
+    pageController.addListener(() {
+      print(pageController.position.haveDimensions);
+    });
   }
 
   @override
@@ -51,6 +56,49 @@ class _StoryViewState extends State<StoryView> {
                 bucketID: bi, sb: sbl[bi], pageController: pageController),
           );
         });
+  }
+}
+
+double degToRad(num deg) => deg * (pi / 180.0);
+
+class _SwipeWidget extends StatelessWidget {
+  final int index;
+
+  final double pageNotifier;
+
+  final Widget child;
+
+  const _SwipeWidget(
+      {required this.index,
+      required this.pageNotifier,
+      required this.child,
+      Key? key})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final isLeaving = (index - pageNotifier) <= 0;
+    final t = (index - pageNotifier);
+    final rotationY = lerpDouble(0, 90, t)!;
+    final opacity = lerpDouble(0, 1, t.abs())!.clamp(0.0, 1.0);
+    final transform = Matrix4.identity();
+    transform.setEntry(3, 2, 0.001);
+    transform.rotateY(-degToRad(rotationY));
+    return Transform(
+      alignment: isLeaving ? Alignment.centerRight : Alignment.centerLeft,
+      transform: transform,
+      child: Stack(
+        children: [
+          child,
+          Positioned.fill(
+            child: Opacity(
+              opacity: opacity,
+              child: SizedBox.shrink(),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -124,24 +172,17 @@ class _StoryViewItemState extends State<StoryViewItem>
         },
         listener: (context, state) {
           if (state is NewPageState) {
-
-
             if (widget.bucketID == state.newPage) {
               StoryItem cs =
                   widget.sb.stories[context.read<StoryCubit>().current_i];
               if (cs is ImageStoryItem) {
                 context.read<StoryCubit>().playStory();
-              }
-              else if(context.read<StoryCubit>().state is StoryReadyState){
+              } else if (context.read<StoryCubit>().state is StoryReadyState) {
                 context.read<StoryCubit>().playStory();
               }
-
             } else {
-              
               animController.stop();
             }
-
-
           }
         },
         child: BlocConsumer<StoryCubit, StoryState>(
@@ -248,14 +289,14 @@ class _StoryViewItemState extends State<StoryViewItem>
                   alignment: Alignment.topCenter,
                   child: SafeArea(
                     bottom: false,
-                    child: ProgressBar(
+                    child: StoryProgressBar(
                       currentStory: current_i,
                       storyLength: widget.sb.length,
                       animController: animController,
                     ),
                   ),
                 ),
-                Container(
+                SizedBox(
                   height: MediaQuery.of(context).size.height,
                   width: MediaQuery.of(context).size.width,
                   child: GestureDetector(
@@ -284,56 +325,5 @@ class _StoryViewItemState extends State<StoryViewItem>
             );
           },
         ));
-  }
-}
-
-class ProgressBar extends StatelessWidget {
-  const ProgressBar(
-      {Key? key,
-      required this.currentStory,
-      required this.storyLength,
-      required this.animController})
-      : super(key: key);
-  final int currentStory;
-  final int storyLength;
-  final AnimationController animController;
-
-  @override
-  Widget build(BuildContext context) {
-    /* widget.sbl[widget.current_i].stories[widget.sbl[widget.current_i].last]
-        .seen = true; */
-    return SizedBox(
-      width: MediaQuery.of(context).size.width * 0.96,
-      child: Row(
-        children: Iterable.generate(storyLength).map((it) {
-          if (currentStory == it) {
-            return Expanded(
-              child: Container(
-                padding: const EdgeInsets.only(right: 5, left: 5),
-                child: AnimatedBuilder(
-                    animation: animController,
-                    builder: (context, child) {
-                      return LinearProgressIndicator(
-                          color: Colors.white,
-                          backgroundColor: Colors.grey,
-                          value: animController.value);
-                    }),
-              ),
-            );
-          } else {
-            return Expanded(
-              child: Container(
-                padding: const EdgeInsets.only(right: 5, left: 5),
-                child: LinearProgressIndicator(
-                  color: Colors.white,
-                  backgroundColor: Colors.grey,
-                  value: (currentStory > it ? 1 : 0),
-                ),
-              ),
-            );
-          }
-        }).toList(),
-      ),
-    );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:instagram_story_case_1/cubit/story_bucket_cubit_cubit.dart';
-import 'package:instagram_story_case_1/cubit/story_cubit.dart';
+import 'package:instagram_story_case_1/models/story_models.dart';
 import 'package:instagram_story_case_1/views/story_view.dart';
 
 class StoryWidget extends StatelessWidget {
@@ -110,60 +110,4 @@ class StoryListItem extends StatelessWidget {
   }
 }
 
-class StoryBucket implements Comparable<StoryBucket> {
-  final List<StoryItem> stories;
-  final int length;
-  final String ppPath;
-  final String owner;
-  int last = 0;
-  bool allSeen = false;
 
-  StoryBucket(this.stories, this.ppPath, this.owner) : length = stories.length;
-
-  markAsSeen(int index) {
-    stories[index].seen = true;
-    if (index == length - 1) {
-      allSeen = true;
-    }
-  }
-
-  @override
-  int compareTo(other) {
-    // age < other.age
-    if (!allSeen && other.allSeen) {
-      return -1;
-    }
-
-    // age > other.age
-    else if (allSeen && !other.allSeen) {
-      return 1;
-    }
-
-    int result = owner.compareTo(other.owner);
-    if (result < 0) {
-      return -1;
-    } else if (result > 0) {
-      return 1;
-    }
-
-    // age == other.age
-    return 0;
-  }
-}
-
-abstract class StoryItem {
-  final String path;
-  bool seen = false;
-  Duration? duration;
-
-  StoryItem(this.path, {this.duration});
-}
-
-class ImageStoryItem extends StoryItem {
-  ImageStoryItem(String path)
-      : super(path, duration: const Duration(seconds: 5));
-}
-
-class VideoStoryItem extends StoryItem {
-  VideoStoryItem(String path, {duration}) : super(path, duration: duration);
-}

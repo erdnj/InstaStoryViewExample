@@ -14,3 +14,9 @@ class SbHomeState extends StoryBucketState {
 }
 
 class SbViewState extends StoryBucketState {}
+
+class NewPageState extends StoryBucketState {
+  final int newPage;
+  NewPageState(this.newPage);
+  
+}

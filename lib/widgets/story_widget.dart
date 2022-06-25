@@ -22,14 +22,13 @@ class StoryWidget extends StatelessWidget {
         create: (context) => StoryBucketCubit()..assignDict(storyDict),
         child: BlocBuilder<StoryBucketCubit, StoryBucketState>(
           buildWhen: (previous, current) {
-            if (current is SbViewState) {
+            if (current is SbViewState || current is NewPageState) {
               return false;
             } else {
               return true;
             }
           },
           builder: (context, state) {
-            print(state);
             if (state is SbHomeState) {
               return ListView.builder(
                   scrollDirection: Axis.horizontal,
@@ -76,7 +75,7 @@ class StoryListItem extends StatelessWidget {
           MaterialPageRoute(builder: (_) {
             return BlocProvider<StoryBucketCubit>.value(
               value: BlocProvider.of<StoryBucketCubit>(context),
-              child: StoryView(),
+              child: StoryView(i),
             );
             // set block's bucket and page id +++++++*++*+*+*+*+*+**+*+*++*+*+*++**++*+*+*+*+*+++*+*+*++**++*++*+*
           }),

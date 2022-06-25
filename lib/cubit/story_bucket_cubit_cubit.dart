@@ -46,4 +46,11 @@ class StoryBucketCubit extends Cubit<StoryBucketState> {
       return StoryBucket(_stories, _ppPath, e.key);
     }));
   }
+
+  alertNewPage(int p) {
+    current_b = p;
+    emit(NewPageState(p));
+  }
+
+  
 }

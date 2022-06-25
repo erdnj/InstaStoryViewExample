@@ -48,11 +48,12 @@ class StoryCubit extends Cubit<StoryState> {
   }
 
   playStory() {
-    emit(StoryPlayingState());
+    print("playStory called");
     sb.markAsSeen(current_i);
+    emit(StoryPlayingState());
   }
 
-  continueStory(){
+  continueStory() {
     emit(StoryContinueState());
   }
 
@@ -62,5 +63,13 @@ class StoryCubit extends Cubit<StoryState> {
 
   closeStoryBucket() {
     emit(CloseState());
+  }
+
+  loadStory() {
+    emit(StoryLoadingState());
+  }
+
+  storyIsReady() {
+    emit(StoryReadyState());
   }
 }

@@ -36,6 +36,7 @@
 3. Execute ```flutter pub get```
 4. After all dependencies installed succesfully execute ```flutter run lib/main.dart```
 
+<br />
 
 ## Demo
 

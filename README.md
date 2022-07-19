@@ -15,9 +15,10 @@
 
 
 
-## Unproblematic Downside
+## ~~Unproblematic Downside~~ Has Resolved
 
-* When you pretend to swipe from the current story to another story without lifting the finger and return to the current story, the current story stays in a paused state. If you press and pull the finger back, the story continues. Or you can click right or left to go back and forth. It is a situation that I do not want to happen, but it does not cause any problems to the user.
+* ~~When you pretend to swipe from the current story to another story without lifting the finger and return to the current story, the current story stays in a paused state. If you press and pull the finger back, the story continues. Or you can click right or left to go back and forth. It is a situation that I do not want to happen, but it does not cause any problems to the user.~~
+* Demo videos are old ones.
 
 <br />
 

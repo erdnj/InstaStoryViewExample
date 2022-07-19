@@ -10,7 +10,6 @@ import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 import '../cubit/story_bucket_cubit_cubit.dart';
 
-
 //The widget when user tap the story circle open
 class StoryView extends StatefulWidget {
   const StoryView(this.current_b, {Key? key}) : super(key: key);
@@ -46,8 +45,10 @@ class _StoryViewState extends State<StoryView> {
       value: _pageNotifier,
       child: PageView.builder(
           onPageChanged: (newPageIndex) {
-            context.read<StoryBucketCubit>().alertNewPage(newPageIndex);
+            //context.read<StoryBucketCubit>().alertNewPage(newPageIndex);
           },
+          pageSnapping: false,
+          physics: NeverScrollableScrollPhysics(),
           controller: pageController,
           itemCount: sbl.length,
           itemBuilder: (context, bi) {
@@ -66,6 +67,7 @@ class _StoryViewState extends State<StoryView> {
 }
 
 double degToRad(num deg) => deg * (pi / 180.0);
+
 //Cubic transition widget, transform its child while pageview is scrooling the pages
 class CubicTransformWidget extends StatelessWidget {
   final int index;
@@ -104,7 +106,6 @@ class CubicTransformWidget extends StatelessWidget {
     );
   }
 }
-
 
 //The big wiget, it could be smaller with some optimizations
 //Each page of page view is that widget
@@ -239,17 +240,25 @@ class _StoryViewItemState extends State<StoryViewItem>
                   }
                 } else if (state is StoryRightState) {
                   if (state.mod == StorySwapMod.bucket) {
-                    widget.pageController.nextPage(
-                        duration: const Duration(milliseconds: 1000),
-                        curve: Curves.ease);
+                    widget.pageController
+                        .nextPage(
+                            duration: const Duration(milliseconds: 1000),
+                            curve: Curves.ease)
+                        .then((value) => context
+                            .read<StoryBucketCubit>()
+                            .alertNewPage(widget.pageController.page!.toInt()));
                   } else {
                     context.read<StoryCubit>().loadStory();
                   }
                 } else if (state is StoryLeftState) {
                   if (state.mod == StorySwapMod.bucket) {
-                    widget.pageController.previousPage(
-                        duration: const Duration(milliseconds: 1000),
-                        curve: Curves.ease);
+                    widget.pageController
+                        .previousPage(
+                            duration: const Duration(milliseconds: 1000),
+                            curve: Curves.ease)
+                        .then((value) => context
+                            .read<StoryBucketCubit>()
+                            .alertNewPage(widget.pageController.page!.toInt()));
                   } else {
                     context.read<StoryCubit>().loadStory();
                   }
@@ -340,13 +349,14 @@ class _StoryViewItemState extends State<StoryViewItem>
                                                     widget.sb.ppPath),
                                                 fit: BoxFit.cover),
                                           ),
-                                        ),Text(widget.sb.owner,
+                                        ),
+                                        Text(widget.sb.owner,
                                             style: TextStyle(
-                                              decoration: TextDecoration.none,
-                                                color: const Color.fromRGBO(255, 255, 255, 1),
+                                                decoration: TextDecoration.none,
+                                                color: const Color.fromRGBO(
+                                                    255, 255, 255, 1),
                                                 fontWeight: FontWeight.w600,
                                                 fontSize: widthSize / 25))
-                                        
                                       ],
                                     ),
                                   ],
@@ -363,6 +373,72 @@ class _StoryViewItemState extends State<StoryViewItem>
               height: heightSize,
               width: widthSize,
               child: GestureDetector(
+                onHorizontalDragUpdate: (details) {
+                  final nere = widget.pageController.offset - details.delta.dx;
+                  if (nere > widget.pageController.position.maxScrollExtent) {
+                    widget.pageController
+                        .jumpTo(widget.pageController.position.maxScrollExtent);
+                  } else if (nere < 0) {
+                    widget.pageController.jumpTo(0);
+                  } else {
+                    widget.pageController.jumpTo(nere);
+                  }
+                },
+                onHorizontalDragEnd: (det) {
+                  final double speedTest = widthSize * 1;
+                  final double speedLimit = speedTest * 3;
+                  final double _velocity = det.velocity.pixelsPerSecond.dx
+                      .clamp(-speedLimit, speedLimit);
+                  final pc = widget.pageController;
+                  final myCubit = context.read<StoryBucketCubit>();
+                  final isPageForward =
+                      (myCubit.current_b - pc.page!).isNegative;
+
+                  if (_velocity < -speedTest && isPageForward) {
+                    double remainWay = max(
+                        widthSize - (pc.offset % widthSize), widthSize * 0.1);
+                    if (myCubit.current_b != myCubit.bucketLenIndexed) {
+                      int remainDuration = remainWay * 1000 ~/ -_velocity;
+                      pc
+                          .animateToPage(myCubit.current_b + 1,
+                              duration: Duration(milliseconds: remainDuration),
+                              curve: Curves.ease)
+                          .then((value) =>
+                              myCubit.alertNewPage(pc.page!.toInt()));
+                      return;
+                    }
+                  } else if (_velocity > speedTest && !isPageForward) {
+                    double remainWay =
+                        max((pc.offset % widthSize), widthSize * 0.1);
+                    if (myCubit.current_b != 0) {
+                      int remainDuration = remainWay * 1000 ~/ _velocity;
+                      pc
+                          .animateToPage(myCubit.current_b - 1,
+                              duration: Duration(milliseconds: remainDuration),
+                              curve: Curves.ease)
+                          .then((value) =>
+                              myCubit.alertNewPage(pc.page!.toInt()));
+                      return;
+                    }
+                  }
+                  int pageNo = pc.page!.round();
+                  int mm =
+                      (max((pc.page! - pageNo).abs(), 0.05) * 1000).toInt();
+                  if (pageNo == myCubit.current_b) {
+                    pc
+                        .animateToPage(pageNo,
+                            duration: Duration(milliseconds: mm),
+                            curve: Curves.ease)
+                        .then((value) =>
+                            context.read<StoryCubit>().continueStory());
+                  } else {
+                    pc
+                        .animateToPage(pageNo,
+                            duration: Duration(milliseconds: mm),
+                            curve: Curves.ease)
+                        .then((value) => myCubit.alertNewPage(pageNo));
+                  }
+                },
                 onVerticalDragEnd: (detail) {
                   context.read<StoryCubit>().continueStory();
                 },

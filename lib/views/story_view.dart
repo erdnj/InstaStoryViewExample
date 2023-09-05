@@ -336,18 +336,21 @@ class _StoryViewItemState extends State<StoryViewItem>
                                     ),
                                     Row(
                                       children: [
-                                        Container(
-                                          margin: EdgeInsets.only(
-                                              left: widthSize * 0.05,
-                                              right: widthSize * 0.02),
-                                          height: widthSize / 9,
-                                          width: widthSize / 9,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            image: DecorationImage(
-                                                image: AssetImage(
-                                                    widget.sb.ppPath),
-                                                fit: BoxFit.cover),
+                                        Hero(
+                                          tag: widget.sb.owner,
+                                          child: Container(
+                                            margin: EdgeInsets.only(
+                                                left: widthSize * 0.05,
+                                                right: widthSize * 0.02),
+                                            height: widthSize / 9,
+                                            width: widthSize / 9,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              image: DecorationImage(
+                                                  image: AssetImage(
+                                                      widget.sb.ppPath),
+                                                  fit: BoxFit.cover),
+                                            ),
                                           ),
                                         ),
                                         Text(widget.sb.owner,

@@ -90,16 +90,19 @@ class StoryListItem extends StatelessWidget {
       },
       child: Column(
         children: [
-          Container(
-            height: size,
-            width: size,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                  color: sb.allSeen ? Colors.grey : Colors.green,
-                  width: size * 0.04),
-              image: DecorationImage(
-                  image: AssetImage(sb.ppPath), fit: BoxFit.cover),
+          Hero(
+            tag: sb.owner,
+            child: Container(
+              height: size,
+              width: size,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                    color: sb.allSeen ? Colors.grey : Colors.green,
+                    width: size * 0.04),
+                image: DecorationImage(
+                    image: AssetImage(sb.ppPath), fit: BoxFit.cover),
+              ),
             ),
           ),
           SizedBox(

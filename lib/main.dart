@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:instagram_story_case_1/util/story_creator.dart';
 import 'package:instagram_story_case_1/widgets/story_widget.dart';
 
@@ -7,7 +8,11 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+    ));
     return const MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Insta',
       home: MyHomePage(),
     );

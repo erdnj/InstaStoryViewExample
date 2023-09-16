@@ -15,7 +15,7 @@
 * Fast transition video non-starting cases has resolved. Simple test video has uploaded at bottom.
 
 
-##Discussion
+## Discussion
 
 * On android(my physical device(jason-crDroid7.31-android11)) has still logging ```E/Surface : freeAllBuffers: 6 buffers were freed while being dequeued!``` from video_player package's android backend player ExoPlayer. Through my tests, it log that line whenever I dispose controller even it is unused. I have assumed it as non-important log as it always doing it on my device.
 * Above logs release point is [Surface.cpp](https://android.googlesource.com/platform/frameworks/native/+/master/libs/gui/Surface.cpp#2304) on android.
@@ -63,11 +63,12 @@
 
 ## Test Video
 
+https://github.com/erdnj/InstaStoryViewExample/assets/69752782/0a471243-683e-4beb-a582-837465ba4dda
 
 
 <br />
 
-## Demo
+## Demo(Old)
 
 * Demo data collected from [Pexels](https://www.pexels.com/) and used as ```Asset Media```.
 

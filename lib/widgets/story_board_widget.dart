@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:instagram_story_case_1/cubit/story_bucket_cubit_cubit.dart';
+import 'package:instagram_story_case_1/cubit/story_head_cubit.dart';
 import 'package:instagram_story_case_1/models/story_models.dart';
-import 'package:instagram_story_case_1/views/story_view.dart';
+import 'package:instagram_story_case_1/views/story_view/story_view.dart';
 
-class StoryWidget extends StatelessWidget {
-  const StoryWidget({Key? key, required this.storyDict})
+class StoryBoardWidget extends StatelessWidget {
+  const StoryBoardWidget({Key? key, required this.storyDict})
       : storiesLength = storyDict.length,
         super(key: key);
   final Map<String, Map<String, Object>> storyDict;
@@ -14,25 +14,25 @@ class StoryWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final widthSize = MediaQuery.of(context).size.width;
-    final heightSize = MediaQuery.of(context).size.height;
 
     return Container(
       padding: EdgeInsets.only(top: widthSize * 0.03),
       height: widthSize * 0.40,
       width: widthSize,
-      child: BlocProvider<StoryBucketCubit>(
-        create: (context) => StoryBucketCubit()..assignDict(storyDict),
-        child: BlocBuilder<StoryBucketCubit, StoryBucketState>(
+      child: BlocProvider<StoryHeadCubit>(
+        create: (context) => StoryHeadCubit()..assignDict(storyDict),
+        child: BlocBuilder<StoryHeadCubit, StoryHeadState>(
           buildWhen: (previous, current) {
-            if (current is SbViewState || current is NewPageState) {
+            if (current is SHViewState || current is SHNewState) {
               return false;
             } else {
               return true;
             }
           },
           builder: (context, state) {
-            if (state is SbHomeState) {
+            if (state is SHHomeState) {
               return ListView.builder(
+                  physics: const BouncingScrollPhysics(),
                   padding: EdgeInsets.only(
                       left: widthSize * 0.025, right: widthSize * 0.025),
                   scrollDirection: Axis.horizontal,
@@ -41,7 +41,7 @@ class StoryWidget extends StatelessWidget {
                     return Row(
                       children: [
                         StoryListItem(
-                            sb: state.sbl[i], i: i, size: widthSize * 0.2),
+                            sb: state.sbList[i], i: i, size: widthSize * 0.2),
                         SizedBox(
                           width:
                               (i != storiesLength - 1) ? widthSize * 0.05 : 0,
@@ -49,7 +49,7 @@ class StoryWidget extends StatelessWidget {
                       ],
                     );
                   });
-            } else if (state is SbLoadingState || state is StoryBucketInitial) {
+            } else if (state is SHLoadingState || state is SHInitialState) {
               return const Center(child: Text("Loading..."));
             } else {
               return const Center(child: Text("That shouldn't be seen :)"));
@@ -77,16 +77,16 @@ class StoryListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        context.read<StoryBucketCubit>().storyTap(i);
+        context.read<StoryHeadCubit>().storyTap(i);
         Navigator.of(context).push(
           MaterialPageRoute(builder: (_) {
-            return BlocProvider<StoryBucketCubit>.value(
-              value: BlocProvider.of<StoryBucketCubit>(context),
+            return BlocProvider<StoryHeadCubit>.value(
+              value: BlocProvider.of<StoryHeadCubit>(context),
               child: StoryView(i),
             );
             // set block's bucket and page id +++++++*++*+*+*+*+*+**+*+*++*+*+*++**++*+*+*+*+*+++*+*+*++**++*++*+*
           }),
-        ).then((_) => context.read<StoryBucketCubit>().goHome());
+        ).then((_) => context.read<StoryHeadCubit>().goHome());
       },
       child: Column(
         children: [
@@ -101,7 +101,7 @@ class StoryListItem extends StatelessWidget {
                     color: sb.allSeen ? Colors.grey : Colors.green,
                     width: size * 0.04),
                 image: DecorationImage(
-                    image: AssetImage(sb.ppPath), fit: BoxFit.cover),
+                    image: AssetImage(sb.owner.pathPP), fit: BoxFit.cover),
               ),
             ),
           ),
@@ -110,7 +110,7 @@ class StoryListItem extends StatelessWidget {
             width: size,
             child: Center(
               child: Text(
-                sb.owner,
+                sb.owner.nick,
                 style: TextStyle(
                     color: Colors.black54,
                     fontSize: size * 0.18,

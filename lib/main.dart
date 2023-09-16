@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:instagram_story_case_1/util/story_creator.dart';
-import 'package:instagram_story_case_1/widgets/story_widget.dart';
+import 'package:instagram_story_case_1/widgets/story_board_widget.dart';
 
-void main() => runApp(MyApp());
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
@@ -31,14 +33,12 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     tabController = TabController(length: 4, vsync: this);
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     tabController.dispose();
     super.dispose();
   }
@@ -61,7 +61,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         ],
       ),
       body: ListView(
-        children: [StoryWidget(storyDict: getStories())],
+        children: [StoryBoardWidget(storyDict: getStories())],
       ),
       bottomNavigationBar: Material(
         color: Colors.white,

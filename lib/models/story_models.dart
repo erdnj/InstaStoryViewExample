@@ -1,12 +1,13 @@
+import 'package:instagram_story_case_1/models/user.dart';
+
 class StoryBucket implements Comparable<StoryBucket> {
   final List<StoryItem> stories;
   final int length;
-  final String ppPath;
-  final String owner;
+  final User owner;
   int last = 0;
   bool allSeen = false;
 
-  StoryBucket(this.stories, this.ppPath, this.owner) : length = stories.length;
+  StoryBucket(this.stories,this.owner) : length = stories.length;
 
   markAsSeen(int index) {
     stories[index].seen = true;
@@ -27,18 +28,19 @@ class StoryBucket implements Comparable<StoryBucket> {
       return 1;
     }
 
-    int result = owner.compareTo(other.owner);
+    // age == other.age
+    int result = owner.nick.compareTo(other.owner.nick);
     if (result < 0) {
       return -1;
     } else if (result > 0) {
       return 1;
     }
-
-    // age == other.age
     return 0;
   }
 }
 
+
+/// It could be [ImageStoryItem] or [VideoStoryItem]
 abstract class StoryItem {
   final String path;
   bool seen = false;

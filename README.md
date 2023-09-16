@@ -1,5 +1,27 @@
 # Pretty Instagram Story Example
 
+## Changelog
+
+* Cubits and views renamed.
+* Before cubit naming is kind a complicated and difficult to identify them, now top cubit is StoryHeadCubit and each story's cubit is StoryBucketCubit.
+* Logic parts simplified.
+* Gesture logic moved to GestureBehaviorer widget and its logic shortened as possible with keeping intended physic behaviours.
+* Cubic animation moved to CubicAnimationWidget.
+* PageChangeNotifier removed, instead PageControllers itself has used as notifier.
+* Stateful widgets removed except main page and storyViewItem pages due to ticker dependencies.
+* Variable naming refreshed.
+* **There was models for story datas which are StoryBucket and StoryItem.** As new, User model added to StoryBucket. As design choice User model kept under StoryBucket model.
+* Error logs due to video controller's wrong disposal has resolved.
+* Fast transition video non-starting cases has resolved. Simple test video has uploaded at bottom.
+
+
+##Discussion
+
+* On android(my physical device(jason-crDroid7.31-android11)) has still logging ```E/Surface : freeAllBuffers: 6 buffers were freed while being dequeued!``` from video_player package's android backend player ExoPlayer. Through my tests, it log that line whenever I dispose controller even it is unused. I have assumed it as non-important log as it always doing it on my device.
+* Above logs release point is [Surface.cpp](https://android.googlesource.com/platform/frameworks/native/+/master/libs/gui/Surface.cpp#2304) on android.
+* Binding animationController to videoController is help to get rid of **SingleTickerProviderStateMixin** dependency on Stateful Widget. In my design I only kept current video controller, and one animation controller. Also I want to keep showing images with AssetImage instead of video player. So I stick with Stateful Widget.
+
+
 
 ## Features
 * Cubic transition between story groups
@@ -36,6 +58,12 @@
 2. In directory which include ```pubspec.yaml```
 3. Execute ```flutter pub get```
 4. After all dependencies installed succesfully execute ```flutter run lib/main.dart```
+
+<br />
+
+## Test Video
+
+
 
 <br />
 
